@@ -40,7 +40,7 @@ public class PasswordServiceImpl implements PasswordService {
         userRepository.save(user);
 
         // ← Enlace con botón clickeable
-        String resetLink = "http://localhost:4200/reset-password?token=" + resetToken;
+        String resetLink = "https://eventperu.francowe.me/reset-password?token=" + resetToken;
         String htmlContent = EmailTemplateBuilder.buildResetPasswordTemplate(resetLink);
 
         emailService.sendEmail(
