@@ -1,0 +1,44 @@
+services:
+
+  postgres-auth:
+    image: postgres:16-alpine
+    container_name: postgres-auth
+    restart: always
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_pass_2026
+    volumes:
+      - pg_auth:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth_user -d auth_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build:
+      context: ./AUHT-SERVICE
+      dockerfile: Dockerfile
+    container_name: auth-service
+    restart: always
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    environment:
+      AUTH_PORT: 8081
+      DB_HOST: postgres-auth
+      DB_NAME: auth_db
+      DB_USER: auth_user
+      DB_PASSWORD: auth_pass_2026
+      EUREKA_INSTANCE_IP_ADDRESS: 44.211.238.117
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+
+volumes:
+  pg_auth:
